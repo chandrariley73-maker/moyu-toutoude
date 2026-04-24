@@ -11,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 
+import java.util.Arrays;
+
 public class PixelGame extends ApplicationAdapter {
     SpriteBatch batch;
     OrthographicCamera camera;
@@ -36,10 +38,10 @@ public class PixelGame extends ApplicationAdapter {
         // 加载精灵表
         walkSheet = new Texture("player_walk.png");
 
-        int frameWidth = 32;
-        int frameHeight = 32;
+        int frameWidth = 29;
+        int frameHeight = 64;
         TextureRegion[][] tmp = TextureRegion.split(walkSheet, frameWidth, frameHeight);
-        walkFrames = tmp[0];
+        walkFrames = Arrays.copyOfRange(tmp[0], 5, tmp[0].length);
 
         // 创建动画
         walkAnimation = new Animation<>(0.15f, walkFrames);
@@ -47,8 +49,8 @@ public class PixelGame extends ApplicationAdapter {
 
         // 玩家
         player = new Rectangle();
-        player.x = 400;
-        player.y = 300;
+        player.x = 50;
+        player.y = 50;
         player.width = 64;
         player.height = 64;
     }
@@ -59,10 +61,13 @@ public class PixelGame extends ApplicationAdapter {
  * 该方法负责清除屏幕、处理玩家移动、更新动画状态以及绘制玩家角色
  */
     public void render() {
-    // 设置屏幕背景颜色为深灰色(R:0.15, G:0.15, B:0.15, A:1)
-        Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
-    // 清除屏幕，使用GL_COLOR_BUFFER_BIT位来清除颜色缓冲区
+        // 和精灵表背景色完全一致
+        Gdx.gl.glClearColor(0.67f, 0.69f, 0.75f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        // 开启透明混合，让图片边缘更自然
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
     // 获取自上一帧以来经过的时间(秒)
         float delta = Gdx.graphics.getDeltaTime();
