@@ -23,8 +23,12 @@ public class PixelGame extends ApplicationAdapter {
 
     // 精灵表动画相关 → 全部提升为成员变量
     Texture walkSheet;
-    Animation<TextureRegion> walkAnimation;
-    TextureRegion[] walkFrames; // 这里加上！
+    Animation<TextureRegion> runAnimation;
+    Animation<TextureRegion> jumpAnimation;
+    Animation<TextureRegion> crouchAnimation;
+    TextureRegion[] run; // 这里加上！
+    TextureRegion[] jump; // 这里加上！
+    TextureRegion[] crouch; // 这里加上！
     float stateTime;
 
     // 跳跃相关（真正的物理跳跃）
@@ -42,15 +46,19 @@ public class PixelGame extends ApplicationAdapter {
         camera.setToOrtho(false, 800, 600);
 
         // 加载精灵表
-        walkSheet = new Texture("player_walk.png");
+        walkSheet = new Texture("2hao.png");
 
-        int frameWidth = 29;
-        int frameHeight = 64;
+        int frameWidth = 77;
+        int frameHeight = 192;
         TextureRegion[][] tmp = TextureRegion.split(walkSheet, frameWidth, frameHeight);
-        walkFrames = Arrays.copyOfRange(tmp[0], 5, tmp[0].length);
-
+        run = tmp[0];
+        jump = tmp[1];
+        crouch = tmp[2];
         // 创建动画
-        walkAnimation = new Animation<>(0.15f, walkFrames);
+        runAnimation = new Animation<>(0.15f, run);
+        jumpAnimation = new Animation<>(0.15f, jump);
+        crouchAnimation = new Animation<>(0.30f, crouch);
+
         stateTime = 0f;
 
         // 玩家
@@ -94,7 +102,6 @@ public class PixelGame extends ApplicationAdapter {
             moving = true;
         }
 
-
         // 检测W键是否被按下，如果按下则向上移动玩家
         if (Gdx.input.isKeyJustPressed(Input.Keys.W) && isOnGround) {
             velocityY = jumpPower;
@@ -120,15 +127,22 @@ public class PixelGame extends ApplicationAdapter {
         // 获取当前帧
         TextureRegion currentFrame;
         if (moving) {
-            currentFrame = walkAnimation.getKeyFrame(stateTime, true);
-        } else {
-            currentFrame = walkFrames[0];
+            currentFrame = runAnimation.getKeyFrame(stateTime, true);
+        }
+        else if (!isOnGround) {
+            currentFrame = jumpAnimation.getKeyFrame(stateTime, true);
+        }
+        else if (isCrouch) {
+            currentFrame = crouchAnimation.getKeyFrame(stateTime, true);
+        }
+        else {
+            currentFrame = crouch[0];
         }
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(currentFrame, player.x, player.y, 29, 64);
+        batch.draw(currentFrame, player.x, player.y, 32, 64);
         batch.end();
     }
 

@@ -1,3 +1,5 @@
+2hao.png
+huochairen.png
 libgdx.png
 player.png
 player_walk.png
