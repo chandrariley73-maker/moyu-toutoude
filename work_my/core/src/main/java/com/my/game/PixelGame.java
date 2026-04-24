@@ -27,6 +27,12 @@ public class PixelGame extends ApplicationAdapter {
     TextureRegion[] walkFrames; // 这里加上！
     float stateTime;
 
+    // 跳跃相关（真正的物理跳跃）
+    float velocityY = 0; // 垂直速度
+    float gravity = -800; // 重力
+    float jumpPower = 450; // 跳跃力度
+    boolean isOnGround = true;
+
     @Override
     public void create() {
         // 创建SpriteBatch实例，用于绘制精灵
@@ -69,32 +75,46 @@ public class PixelGame extends ApplicationAdapter {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 
-    // 获取自上一帧以来经过的时间(秒)
+        // 获取自上一帧以来经过的时间(秒)
         float delta = Gdx.graphics.getDeltaTime();
-    // 更新状态时间，用于动画帧计算
+        // 更新状态时间，用于动画帧计算
         stateTime += delta;
-
         // 移动相关变量初始化
         boolean moving = false;
-    // 检测W键是否被按下，如果按下则向上移动玩家
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-            player.y += speed * delta;
-            moving = true;
-        }
-    // 检测S键是否被按下，如果按下则向下移动玩家
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-            player.y -= speed * delta;
-            moving = true;
-        }
-    // 检测A键是否被按下，如果按下则向左移动玩家
+        boolean isCrouch = false;
+
+        // 检测A键是否被按下，如果按下则向左移动玩家
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             player.x -= speed * delta;
             moving = true;
         }
-    // 检测D键是否被按下，如果按下则向右移动玩家
+        // 检测D键是否被按下，如果按下则向右移动玩家
         if (Gdx.input.isKeyPressed(Input.Keys.D)) {
             player.x += speed * delta;
             moving = true;
+        }
+
+
+        // 检测W键是否被按下，如果按下则向上移动玩家
+        if (Gdx.input.isKeyJustPressed(Input.Keys.W) && isOnGround) {
+            velocityY = jumpPower;
+            isOnGround = false;
+        }
+
+        // 应用重力
+        velocityY += gravity * delta;
+        player.y += velocityY * delta;
+
+        // 地面碰撞（落到地面就停下）
+        if (player.y <= 50) {
+            player.y = 50;
+            velocityY = 0;
+            isOnGround = true;
+        }
+
+        // 检测S键是否被按下，如果按下则向下移动玩家
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            isCrouch = true; // 标记为下蹲状态
         }
 
         // 获取当前帧
@@ -108,7 +128,7 @@ public class PixelGame extends ApplicationAdapter {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(currentFrame, player.x, player.y, 32, 32);
+        batch.draw(currentFrame, player.x, player.y, 29, 64);
         batch.end();
     }
 
