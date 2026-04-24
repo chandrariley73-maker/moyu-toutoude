@@ -23,9 +23,11 @@ public class PixelGame extends ApplicationAdapter {
 
     // 精灵表动画相关 → 全部提升为成员变量
     Texture walkSheet;
+    Animation<TextureRegion> statAnimation;
     Animation<TextureRegion> runAnimation;
     Animation<TextureRegion> jumpAnimation;
     Animation<TextureRegion> crouchAnimation;
+    TextureRegion[] stat; // 这里加上！
     TextureRegion[] run; // 这里加上！
     TextureRegion[] jump; // 这里加上！
     TextureRegion[] crouch; // 这里加上！
@@ -46,18 +48,19 @@ public class PixelGame extends ApplicationAdapter {
         camera.setToOrtho(false, 800, 600);
 
         // 加载精灵表
-        walkSheet = new Texture("2hao.png");
+        walkSheet = new Texture("Warrior.png");
 
-        int frameWidth = 77;
-        int frameHeight = 192;
+        int frameWidth = 64;
+        int frameHeight = 45;
         TextureRegion[][] tmp = TextureRegion.split(walkSheet, frameWidth, frameHeight);
-        run = tmp[0];
-        jump = tmp[1];
-        crouch = tmp[2];
+        stat = tmp[0];
+        run = tmp[1];
+        jump = tmp[7];
+        crouch = tmp[11];
         // 创建动画
         runAnimation = new Animation<>(0.15f, run);
         jumpAnimation = new Animation<>(0.15f, jump);
-        crouchAnimation = new Animation<>(0.30f, crouch);
+        crouchAnimation = new Animation<>(0.15f, crouch);
 
         stateTime = 0f;
 
@@ -136,13 +139,13 @@ public class PixelGame extends ApplicationAdapter {
             currentFrame = crouchAnimation.getKeyFrame(stateTime, true);
         }
         else {
-            currentFrame = crouch[0];
+            currentFrame = stat[0];
         }
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(currentFrame, player.x, player.y, 32, 64);
+        batch.draw(currentFrame, player.x, player.y, 64, 64);
         batch.end();
     }
 
